@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:url" content="http://hichip.sakura.ne.jp/countdown/"/>
+    <meta property="og:title" content="DEALINE COUNTDOWN"/>
+    <meta property="og:image" content="test.jpg" />
+    <meta property="og:description" content="締め切りまでのカウントダウン" />
+    <meta property="fb:479803739258879" content="479803739258879" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.18.1/build/cssreset/cssreset-min.css">
+    <title>カウントダウン</title>
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: #333;
+        }
+
+        /* ::-webkit-scrollbar-thumb {
+            background-color: #00A7EA;
+        } */
+
+        body {
+            margin: 0px;
+            padding: 0px;
+            height: 100vh;
+            font-family: Century Gothic, Lucida Grande;
+            /* display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: row;
+
+            font-family: Century Gothic, Lucida Grande;
+            margin: 0; */
+        }
+
+        h1 {
+            font-size: 5vw;
+            text-align: center;
+            color: #fff;
+            /* font-size: 50px; */
+        }
+
+        .countdown {
+            display: flex;
+        }
+
+        .countdown span,
+        .countdown h1 {
+            color: #00A7EA;
+        }
+
+        .countdown .day,
+        .countdown .hour,
+        .countdown .min,
+        .countdown .sec {
+            padding: 1vw 3vw;
+            text-align: center;
+        }
+
+        .countdown .day .num,
+        .countdown .hour .num,
+        .countdown .min .num,
+        .countdown .sec .num {
+            display: block;
+            font-size: 8vw;
+            line-height: 1em;
+        }
+
+        .countdown .day .word,
+        .countdown .hour .word,
+        .countdown .min .word,
+        .countdown .sec .word {
+            display: block;
+            font-size: 2vw;
+            color: #8a99ab;
+        }
+
+        .countdown-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: row;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<!-- <h1 style="color: #fff">DEALINE COUNTDOWN</h1> -->
+
+<body style="background-image: url(test.jpg);background-size: cover">
+
+    <h1>DEADLINE COUNTDOWN</h1>
+
+    <div class="countdown-wrapper">
+        <div class="countdown" data-date="12-9-2019" data-time="23:59">
+            <div class="day"><span class="num"></span><span class="word"></span></div>
+            <div class="hour"><span class="num"></span><span class="word"></span></div>
+            <div class="min"><span class="num"></span><span class="word"></span></div>
+            <div class="sec"><span class="num"></span><span class="word"></span></div>
+        </div>
+    </div>
+
+
+
+    <script>
+        const $ = elem => document.querySelector(elem);
+
+        const countdown = function (_config) {
+            const tarDate = $(_config.target).getAttribute('data-date').split('-');
+            const day = parseInt(tarDate[0]);
+            const month = parseInt(tarDate[1]);
+            const year = parseInt(tarDate[2]);
+            let tarTime = $(_config.target).getAttribute('data-time');
+            let tarhour, tarmin;
+
+            if (tarTime != null) {
+                tarTime = tarTime.split(':');
+                tarhour = parseInt(tarTime[0]);
+                tarmin = parseInt(tarTime[1]);
+            }
+
+            let months = [31, new Date().getFullYear() % 4 == 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            let dateNow = new Date();
+            let dayNow = dateNow.getDate();
+            let monthNow = dateNow.getMonth() + 1;
+            let yearNow = dateNow.getFullYear();
+            let hourNow = dateNow.getHours();
+            let minNow = dateNow.getMinutes();
+            let count_day = 0,
+                count_hour = 0,
+                count_min = 0;
+            let count_day_isSet = false;
+            let isOver = false;
+
+            // Set the date we're counting down to
+            const countDownDate = new Date(year, month - 1, day, tarhour, tarmin, 0, 0).getTime();
+
+            $(_config.target + ' .day .word').innerHTML = _config.dayWord;
+            $(_config.target + ' .hour .word').innerHTML = _config.hourWord;
+            $(_config.target + ' .min .word').innerHTML = _config.minWord;
+            $(_config.target + ' .sec .word').innerHTML = _config.secWord;
+
+            const updateTime = () => {
+                // Get todays date and time
+                const now = new Date().getTime();
+
+                // Find the distance between now an the count down date
+                const distance = countDownDate - now;
+
+                // Time calculations for days, hours, minutes and seconds
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // If the count down is over, write some text 
+                if (distance < 0) {
+                    $(".countdown").innerHTML = "<h1>EXPIRED</h1>";
+                } else {
+                    requestAnimationFrame(updateTime);
+
+                    $(_config.target + ' .day .num').innerHTML = addZero(days);
+                    $(_config.target + ' .hour .num').innerHTML = addZero(hours);
+                    $(_config.target + ' .min .num').innerHTML = addZero(minutes);
+                    $(_config.target + ' .sec .num').innerHTML = addZero(seconds);
+                }
+            }
+
+            updateTime();
+        }
+
+
+        const addZero = (x) => (x < 10 && x >= 0) ? "0" + x : x;
+
+        const mylittlething_countdown = new countdown({
+            target: '.countdown',
+            dayWord: ' days',
+            hourWord: ' hours',
+            minWord: ' mins',
+            secWord: ' secs'
+        });
+    </script>
+</body>
+
+</html>
